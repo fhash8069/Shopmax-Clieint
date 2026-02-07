@@ -1,16 +1,10 @@
-# Amazon Review Scraper - Chrome Extension
+#  Review Scraper - Chrome Extension
 
 A simple Chrome extension that scrapes Amazon product reviews and displays them in a clean, formatted page.
 
 ## Features
 
-- 🔍 Scrapes reviews directly from Amazon product pages
-- ✅ Extracts verified purchase badges
-- ⭐ Displays star ratings
-- 📅 Shows review dates
-- 🎨 Clean, modern UI for viewing results
-- 🚫 CAPTCHA detection
-- 📱 Responsive design
+
 
 ## Installation
 
@@ -85,12 +79,6 @@ The extension uses Amazon's stable `data-hook` attributes:
 - `scripting` - Execute content script programmatically
 - `host_permissions` - Access Amazon.com pages
 
-## Limitations
-
-- ✅ Works on Amazon.com (US)
-- ⚠️ Only scrapes reviews visible on current page (no pagination)
-- ⚠️ Won't work if Amazon shows CAPTCHA ("Robot Check")
-- ⚠️ Results page uses blob URL (temporary, closes when tab closes)
 
 ## Error Messages
 
@@ -138,7 +126,3 @@ Possible improvements (not yet implemented):
 - Amazon has detected automated access
 - Close extension and browse normally for a while
 - Try again later from a different IP if persistent
-
-## License
-
-This is a demonstration project. Use responsibly and in accordance with Amazon's Terms of Service.
