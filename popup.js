@@ -517,13 +517,6 @@ function generateResultsHTML(data) {
       </div>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-      <button class="btn" id="copyJsonBtn">
-        📋 Copy Formatted JSON
-      </button>
-    </div>
-
     <!-- Formatted JSON Display Section -->
     <div class="json-display">
       <h2>Formatted Review Data</h2>
@@ -532,9 +525,8 @@ function generateResultsHTML(data) {
 
     <!-- Plain Text Container for Easy Copying -->
     <div class="text-container">
-      <h2>📋 Copy Text Below (Select All with Ctrl+A)</h2>
+      <h2>cleaned json</h2>
       <div class="text-box" id="plainTextBox">${escapeHtml(plainTextData)}</div>
-      <p class="copy-instruction">Click in the box above, press Ctrl+A (or Cmd+A on Mac) to select all, then Ctrl+C (or Cmd+C) to copy</p>
     </div>
   </div>
 
@@ -542,7 +534,6 @@ function generateResultsHTML(data) {
     // Simple script to handle text box interaction
     document.addEventListener('DOMContentLoaded', function() {
       const textBox = document.getElementById('plainTextBox');
-      const copyBtn = document.getElementById('copyJsonBtn');
       
       // Click text box to select all
       if (textBox) {
@@ -552,47 +543,6 @@ function generateResultsHTML(data) {
           const selection = window.getSelection();
           selection.removeAllRanges();
           selection.addRange(range);
-        });
-      }
-      
-      // Copy button functionality
-      if (copyBtn) {
-        copyBtn.addEventListener('click', function() {
-          const btn = this;
-          const textToCopy = textBox ? textBox.textContent : '';
-          
-          if (!textToCopy) {
-            alert('No text to copy!');
-            return;
-          }
-          
-          // Try to copy
-          const textarea = document.createElement('textarea');
-          textarea.value = textToCopy;
-          textarea.style.position = 'fixed';
-          textarea.style.opacity = '0';
-          document.body.appendChild(textarea);
-          textarea.select();
-          
-          try {
-            const successful = document.execCommand('copy');
-            if (successful) {
-              const originalHTML = btn.innerHTML;
-              btn.innerHTML = '✓ Copied!';
-              btn.classList.add('success');
-              
-              setTimeout(() => {
-                btn.innerHTML = originalHTML;
-                btn.classList.remove('success');
-              }, 2000);
-            } else {
-              alert('Copy failed. Please select the text manually and use Ctrl+C');
-            }
-          } catch (err) {
-            alert('Copy failed. Please select the text manually and use Ctrl+C');
-          } finally {
-            document.body.removeChild(textarea);
-          }
         });
       }
     });
