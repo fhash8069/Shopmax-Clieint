@@ -148,11 +148,44 @@ function displayResultsInPopup(aiResponse) {
   const resultsSection = document.getElementById('resultsSection');
   const aiResponseContent = document.getElementById('aiResponseContent');
   
-  // Set the AI response text
-  aiResponseContent.textContent = aiResponse;
+  try {
+    // Try to parse as JSON
+    const data = JSON.parse(aiResponse);
+    
+    // Check if we have recommendations
+    if (data.recommendationsByCategory && Array.isArray(data.recommendationsByCategory)) {
+      // Create formatted HTML
+      let html = '';
+      
+      data.recommendationsByCategory.forEach((rec, index) => {
+        html += `
+          <div class="product-recommendation">
+            <div class="product-category">${escapeHtml(rec.category)}</div>
+            <div class="product-name">${escapeHtml(rec.bestProductName)}</div>
+            <div class="product-reasoning">${escapeHtml(rec.reasoning)}</div>
+          </div>
+        `;
+      });
+      
+      aiResponseContent.innerHTML = html;
+    } else {
+      // Fallback to plain text if structure is different
+      aiResponseContent.textContent = aiResponse;
+    }
+  } catch (e) {
+    // If not JSON, display as plain text
+    aiResponseContent.textContent = aiResponse;
+  }
   
   // Show the results section
   resultsSection.style.display = 'block';
+}
+
+// Helper function to escape HTML
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 // Hide results section
@@ -214,10 +247,11 @@ async function scrapeCart() {
     }
 
     // Send cart data to backend
-    showStatus('Sending to backend...', 'info');
+    showStatus('Comparing Products...', 'info');
 
     try {
-      const backendResponse = await fetch('http://localhost:4000/cartMaxx', {
+      const backendResponse = await fetch('http://shopmaxx-server.aedify.ai/cartMaxx', 
+        {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
