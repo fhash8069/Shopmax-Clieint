@@ -17,6 +17,22 @@ function scrapeReviewsFromPage() {
   const productTitle =
     document.querySelector("#productTitle")?.innerText?.trim() || null;
 
+  // Extract product description
+  const productDescription =
+    document.querySelector("#feature-bullets")?.innerText?.trim() ||
+    document.querySelector("#productDescription p")?.innerText?.trim() ||
+    null;
+
+  // Extract product specifications
+  const specifications = {};
+  document.querySelectorAll("#productDetails_detailBullets_sections1 tr, .prodDetTable tr, #detailBullets_feature_div li").forEach(row => {
+    const label = row.querySelector("th, .label")?.innerText?.trim();
+    const value = row.querySelector("td, .value")?.innerText?.trim();
+    if (label && value) {
+      specifications[label] = value;
+    }
+  });
+
   // Scrape reviews using stable Amazon selectors
   const reviews = [];
 
@@ -50,6 +66,8 @@ function scrapeReviewsFromPage() {
   return {
     asin: asin,
     productTitle: productTitle,
+    description: productDescription,
+    specifications: Object.keys(specifications).length > 0 ? specifications : null,
     reviews: reviews
   };
 }
