@@ -12,7 +12,7 @@
     }
 
     body {
-      width: 300px;
+      width: 350px;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       padding: 20px;
       background: #f8f9fa;
@@ -33,79 +33,175 @@
     }
 
     button {
-      width: 100%;
-      padding: 12px;
-      background: #ff9900;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
     }
 
-    button:hover:not(:disabled) {
+    /* Add Category Section */
+    .add-category-section {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .add-category-section input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .add-category-section button {
+      padding: 8px 12px;
+      border: none;
+      background: #ff9900;
+      color: white;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .add-category-section button:hover {
       background: #fa8900;
     }
 
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
+    /* Categories container */
+    #categoriesContainer {
+      display: flex;
+      flex-direction: column-reverse; /* newest on top */
+      gap: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 20px;
     }
 
-    #status {
-      margin-top: 12px;
+    /* Category card */
+    .category-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
       padding: 10px;
-      border-radius: 4px;
+      background: #fafafa;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .category-header {
+      font-weight: 600;
+      color: #232f3e;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .bubble-input {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .bubble-input input {
+      flex: 1;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .bubble-input button {
+      padding: 6px 10px;
+      border: none;
+      background: #067d62;
+      color: white;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .bubble-input button:hover {
+      background: #05604f;
+    }
+
+    /* Bubbles */
+    .bubbles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .bubble {
+      background: #ffdd99;
+      padding: 4px 8px;
+      border-radius: 12px;
+      position: relative;
       font-size: 13px;
-      text-align: center;
+      cursor: default;
+      transition: background 0.2s;
+    }
+
+    .bubble:hover {
+      background: #ffc066;
+    }
+
+    .bubble .delete-bubble {
       display: none;
-    }
-
-    #status.info {
-      display: block;
-      background: #e3f2fd;
-      color: #1976d2;
-    }
-
-    #status.error {
-      display: block;
-      background: #ffebee;
-      color: #c62828;
-    }
-
-    #status.success {
-      display: block;
-      background: #e8f5e9;
-      color: #2e7d32;
-    }
-
-    .loader {
-      display: inline-block;
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #c62828;
+      color: white;
+      border-radius: 50%;
       width: 14px;
       height: 14px;
-      border: 2px solid #f3f3f3;
-      border-top: 2px solid #ff9900;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-right: 6px;
-      vertical-align: middle;
+      font-size: 10px;
+      text-align: center;
+      line-height: 14px;
+      cursor: pointer;
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .bubble:hover .delete-bubble {
+      display: block;
+    }
+
+    /* Bottom buttons */
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .action-buttons button {
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      background: #ff9900;
+      color: white;
+      font-weight: 600;
+    }
+
+    .action-buttons button:hover {
+      background: #fa8900;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>ShopMaxx</h1>
-    <button id="scrapeBtn">reviewMaxx</button>
-    <button id="cartBtn">cartMaxx</button>
-    <div id="status"></div>
+    <h1>ShopMaxx Categories</h1>
+
+    <!-- Add Category Section -->
+    <div class="add-category-section">
+      <input type="text" id="categoryInput" placeholder="Enter category">
+      <button id="addCategoryBtn">Add Category</button>
+    </div>
+
+    <!-- Categories list -->
+    <div id="categoriesContainer">
+      <!-- New categories will appear here -->
+    </div>
+
+    <!-- Bottom buttons -->
+    <div class="action-buttons">
+      <button id="scrapeBtn">reviewMaxx</button>
+      <button id="cartBtn">cartMaxx</button>
+    </div>
   </div>
+
   <script src="popup.js"></script>
 </body>
 </html>
