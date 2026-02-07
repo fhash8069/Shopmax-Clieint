@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> ShopMaxx</title>
+  <title>ShopMaxx</title>
   <style>
     * {
       margin: 0;
@@ -12,10 +12,10 @@
     }
 
     body {
-      width: 350px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      padding: 20px;
-      background: #f8f9fa;
+      width: 400px;
+      font-family: Arial, sans-serif;
+      background-color: white; /* background of popup */
+      color: #333;
     }
 
     .container {
@@ -32,6 +32,12 @@
       text-align: center;
     }
 
+    h3 {
+      font-size: 16px;
+      color: #232f3e;
+      margin-bottom: 12px;
+    }
+
     button {
       cursor: pointer;
     }
@@ -39,62 +45,69 @@
     /* Add Category Section */
     .add-category-section {
       display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 10px 0;
       gap: 10px;
-      margin-bottom: 15px;
     }
 
-    .add-category-section input {
+    #categoryInput {
       flex: 1;
       padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+      border: 1px solid #4CAF50;
+      border-radius: 4px;
     }
 
-    .add-category-section button {
-      padding: 8px 12px;
-      border: none;
-      background: #ff9900;
+    #addCategoryBtn {
+      background-color: #4CAF50;
       color: white;
-      border-radius: 6px;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
       font-weight: 600;
     }
 
-    .add-category-section button:hover {
-      background: #fa8900;
+    #addCategoryBtn:hover {
+      background-color: #45a049;
     }
 
     /* Categories container */
     #categoriesContainer {
-      display: flex;
-      flex-direction: column-reverse; /* newest on top */
-      gap: 10px;
-      max-height: 200px;
+      width: 100%;
+      max-width: 400px;
+      max-height: 200px; /* only categories scroll */
       overflow-y: auto;
-      margin-bottom: 20px;
+      padding: 5px;
+      border-top: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 10px;
     }
 
     /* Category card */
     .category-card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
+      width: 100%;
+      background-color: white;
+      border: 1px solid #4CAF50;
+      border-radius: 6px;
+      margin-bottom: 10px;
       padding: 10px;
-      background: #fafafa;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .category-header {
-      font-weight: 600;
-      color: #232f3e;
-      margin-bottom: 8px;
+      font-weight: bold;
+      color: #4CAF50;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 10px;
     }
 
     .bubble-input {
       display: flex;
       gap: 6px;
       margin-bottom: 8px;
+      width: 100%;
     }
 
     .bubble-input input {
@@ -117,32 +130,29 @@
       background: #05604f;
     }
 
-    /* Bubbles */
+    /* Preference bubbles */
     .bubbles {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: wrap; /* allow bubbles to wrap */
       gap: 6px;
     }
 
     .bubble {
-      background: #ffdd99;
-      padding: 4px 8px;
-      border-radius: 12px;
+      display: inline-block;
+      background-color: #4CAF50;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      text-align: center;
       position: relative;
-      font-size: 13px;
-      cursor: default;
-      transition: background 0.2s;
-    }
-
-    .bubble:hover {
-      background: #ffc066;
     }
 
     .bubble .delete-bubble {
       display: none;
       position: absolute;
-      top: -6px;
-      right: -6px;
+      top: -4px;
+      right: -4px;
       background: #c62828;
       color: white;
       border-radius: 50%;
@@ -158,12 +168,17 @@
       display: block;
     }
 
+    .delete-bubble:hover {
+      color: #ffcccc;
+    }
+
     /* Bottom buttons */
     .action-buttons {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      margin-top: 15px;
+      margin-top: 10px;
+      justify-content: center;
     }
 
     .action-buttons button {
@@ -173,6 +188,18 @@
       background: #ff9900;
       color: white;
       font-weight: 600;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    #cartBtn {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    #cartBtn:hover {
+      background-color: #45a049;
     }
 
     .action-buttons button:hover {
@@ -182,7 +209,8 @@
 </head>
 <body>
   <div class="container">
-    <h1>ShopMaxx Categories</h1>
+    <h1>ShopMaxx</h1>
+    <h3>Categories</h3>
 
     <!-- Add Category Section -->
     <div class="add-category-section">
@@ -192,13 +220,12 @@
 
     <!-- Categories list -->
     <div id="categoriesContainer">
-      <!-- New categories will appear here -->
+      <!-- Category cards with bubbles will scroll here -->
     </div>
 
     <!-- Bottom buttons -->
     <div class="action-buttons">
-      <button id="scrapeBtn">reviewMaxx</button>
-      <button id="cartBtn">cartMaxx</button>
+      <button id="cartBtn">CartMaxx!</button>
     </div>
   </div>
 
