@@ -1,5 +1,6 @@
 // Get DOM elements
 const scrapeBtn = document.getElementById('scrapeBtn');
+const cartBtn = document.getElementById('cartBtn');
 const statusDiv = document.getElementById('status');
 
 // Show status message
@@ -64,6 +65,94 @@ function generateFormattedTextData(data) {
   });
   
   return text;
+}
+
+// Generate simple HTML page for cart data (no styling)
+function generateCartResultsHTML(cartDataArray) {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Cart Items</title>
+</head>
+<body>
+<pre>${JSON.stringify(cartDataArray, null, 2)}</pre>
+</body>
+</html>`.trim();
+}
+
+// Generate HTML page for AI-processed cart results
+function generateAIResultsHTML(aiResponse, productNames) {
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Cart Analysis - AI Results</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #232f3e;
+      border-bottom: 3px solid #ff9900;
+      padding-bottom: 10px;
+    }
+    .ai-response {
+      background: #f9f9f9;
+      border-left: 4px solid #ff9900;
+      padding: 20px;
+      margin: 20px 0;
+      white-space: pre-wrap;
+    }
+    .products {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-top: 20px;
+    }
+    .products h2 {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+    .product-list {
+      list-style: none;
+      padding: 0;
+    }
+    .product-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .product-list li:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cart Analysis Results</h1>
+  
+  <div class="ai-response">
+    ${escapeHtml(aiResponse)}
+  </div>
+
+  <div class="products">
+    <h2>Analyzed Products (${productNames.length})</h2>
+    <ul class="product-list">
+      ${productNames.map(name => `<li>${escapeHtml(name)}</li>`).join('')}
+    </ul>
+  </div>
+</body>
+</html>`.trim();
 }
 
 // Generate HTML page from scraped data
@@ -633,5 +722,108 @@ async function scrapeReviews() {
   }
 }
 
-// Add click event listener
+// Main cart scraping logic
+async function scrapeCart() {
+  try {
+    // Disable button and show loading
+    cartBtn.disabled = true;
+    showStatus('Scraping cart...', 'info');
+
+    // Get current active tab
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    // Validate Amazon URL
+    if (!tab.url || !tab.url.match(/amazon\.(com|co\.uk|ca|de|fr|es|it|co\.jp)/)) {
+      throw new Error('Please navigate to an Amazon cart page');
+    }
+
+    // Try to send message to content script
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(tab.id, { action: 'scrapeCart' });
+    } catch (error) {
+      // Content script not loaded - try to inject it
+      if (error.message.includes('Receiving end does not exist')) {
+        showStatus('Injecting content script...', 'info');
+        
+        try {
+          // Inject the content script
+          await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ['content.js']
+          });
+          
+          // Wait a moment for script to initialize
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+          // Try sending message again
+          response = await chrome.tabs.sendMessage(tab.id, { action: 'scrapeCart' });
+        } catch (injectError) {
+          throw new Error('Failed to load content script. Please refresh the Amazon page and try again.');
+        }
+      } else {
+        throw error;
+      }
+    }
+
+    if (response.error) {
+      throw new Error(response.error);
+    }
+
+    if (!response.data) {
+      throw new Error('No data received from content script');
+    }
+
+    // Send cart data to backend
+    showStatus('Sending to backend...', 'info');
+
+    try {
+      const backendResponse = await fetch('http://localhost:4000/cartMaxx', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productName: response.data
+          // preferences not included - backend will use defaults
+        })
+      });
+
+      if (!backendResponse.ok) {
+        throw new Error(`Backend returned ${backendResponse.status}`);
+      }
+
+      const aiResponse = await backendResponse.text();
+
+      // Generate HTML with AI response instead of raw JSON
+      const resultsHTML = generateAIResultsHTML(aiResponse, response.data);
+
+      // Create blob URL and open in new tab
+      const blob = new Blob([resultsHTML], { type: 'text/html' });
+      const blobUrl = URL.createObjectURL(blob);
+      await chrome.tabs.create({ url: blobUrl });
+
+      showStatus(`✓ AI analysis complete for ${response.data.length} items!`, 'success');
+
+    } catch (backendError) {
+      console.error('Backend error:', backendError);
+      showStatus(`Backend error: ${backendError.message}`, 'error');
+      
+      // Fallback: show raw data if backend fails
+      const cartHTML = generateCartResultsHTML(response.data);
+      const blob = new Blob([cartHTML], { type: 'text/html' });
+      const blobUrl = URL.createObjectURL(blob);
+      await chrome.tabs.create({ url: blobUrl });
+    }
+
+  } catch (error) {
+    console.error('Cart scraping error:', error);
+    showStatus(`Error: ${error.message}`, 'error');
+  } finally {
+    cartBtn.disabled = false;
+  }
+}
+
+// Add click event listeners
 scrapeBtn.addEventListener('click', scrapeReviews);
+cartBtn.addEventListener('click', scrapeCart);

@@ -72,6 +72,41 @@ function scrapeReviewsFromPage() {
   };
 }
 
+// Cart scraping function
+function scrapeCartFromPage() {
+  // CAPTCHA Detection (mandatory check)
+  if (document.title.includes("Robot Check")) {
+    throw new Error("Amazon CAPTCHA detected");
+  }
+
+  // Validate we're on a cart page
+  if (!location.pathname.includes('/cart') && !location.pathname.includes('/gp/cart')) {
+    throw new Error("Please navigate to the Amazon shopping cart page");
+  }
+
+  // Find the active items list
+  const activeCart = document.querySelector('ul[data-name="Active Items"]');
+  
+  if (!activeCart) {
+    throw new Error("Could not find active items section on page.");
+  }
+
+  // Get all list items and extract only the product title from each
+  const items = [...activeCart.querySelectorAll('li')]
+    .map(li => {
+      // Extract only the product title from the truncate-cut span
+      const titleSpan = li.querySelector('span.a-truncate-cut[aria-hidden="true"]');
+      return titleSpan ? titleSpan.innerText.trim() : null;
+    })
+    .filter(Boolean);
+
+  if (items.length === 0) {
+    throw new Error("No items found in active cart.");
+  }
+
+  return items;
+}
+
 // Message listener for popup communication
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'scrapeReviews') {
@@ -81,8 +116,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } catch (error) {
       sendResponse({ success: false, error: error.message });
     }
+    // Don't return true - response is sent synchronously
   }
   
-  // Return true to indicate async response
-  return true;
+  if (request.action === 'scrapeCart') {
+    try {
+      const data = scrapeCartFromPage();
+      sendResponse({ success: true, data: data });
+    } catch (error) {
+      sendResponse({ success: false, error: error.message });
+    }
+    // Don't return true - response is sent synchronously
+  }
 });
