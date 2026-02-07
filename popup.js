@@ -1,5 +1,4 @@
 // Existing DOM elements
-const scrapeBtn = document.getElementById('scrapeBtn');
 const cartBtn = document.getElementById('cartBtn');
 const statusDiv = document.getElementById('status');
 
@@ -136,11 +135,7 @@ addCategoryBtn.addEventListener('click', () => {
   categoryInput.focus();
 });
 
-// Remove the reviewMaxx button
-const reviewMaxxBtn = document.getElementById('scrapeBtn');
-if (reviewMaxxBtn) {
-  reviewMaxxBtn.remove();
-}
+// reviewMaxx button has been removed from HTML
 
 // Show status message
 function showStatus(message, type = 'info') {
@@ -148,92 +143,22 @@ function showStatus(message, type = 'info') {
   statusDiv.className = type;
 }
 
-// Generate simple HTML page for cart data (no styling)
-function generateCartResultsHTML(cartDataArray) {
-  return `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Cart Items</title>
-</head>
-<body>
-<pre>${JSON.stringify(cartDataArray, null, 2)}</pre>
-</body>
-</html>`.trim();
+// Display AI results in the popup
+function displayResultsInPopup(aiResponse) {
+  const resultsSection = document.getElementById('resultsSection');
+  const aiResponseContent = document.getElementById('aiResponseContent');
+  
+  // Set the AI response text
+  aiResponseContent.textContent = aiResponse;
+  
+  // Show the results section
+  resultsSection.style.display = 'block';
 }
 
-// Generate HTML page for AI-processed cart results
-function generateAIResultsHTML(aiResponse, productNames) {
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  return `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Cart Analysis - AI Results</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 20px;
-      line-height: 1.6;
-    }
-    h1 {
-      color: #232f3e;
-      border-bottom: 3px solid #ff9900;
-      padding-bottom: 10px;
-    }
-    .ai-response {
-      background: #f9f9f9;
-      border-left: 4px solid #ff9900;
-      padding: 20px;
-      margin: 20px 0;
-      white-space: pre-wrap;
-    }
-    .products {
-      background: #fff;
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin-top: 20px;
-    }
-    .products h2 {
-      font-size: 18px;
-      color: #666;
-      margin-bottom: 10px;
-    }
-    .product-list {
-      list-style: none;
-      padding: 0;
-    }
-    .product-list li {
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
-    }
-    .product-list li:last-child {
-      border-bottom: none;
-    }
-  </style>
-</head>
-<body>
-  <h1>Cart Analysis Results</h1>
-  
-  <div class="ai-response">
-    ${escapeHtml(aiResponse)}
-  </div>
-
-  <div class="products">
-    <h2>Analyzed Products (${productNames.length})</h2>
-    <ul class="product-list">
-      ${productNames.map(name => `<li>${escapeHtml(name)}</li>`).join('')}
-    </ul>
-  </div>
-</body>
-</html>`.trim();
+// Hide results section
+function hideResultsSection() {
+  const resultsSection = document.getElementById('resultsSection');
+  resultsSection.style.display = 'none';
 }
 
 // Main cart scraping logic
@@ -309,13 +234,8 @@ async function scrapeCart() {
 
       const aiResponse = await backendResponse.text();
 
-      // Generate HTML with AI response instead of raw JSON
-      const resultsHTML = generateAIResultsHTML(aiResponse, response.data);
-
-      // Create blob URL and open in new tab
-      const blob = new Blob([resultsHTML], { type: 'text/html' });
-      const blobUrl = URL.createObjectURL(blob);
-      await chrome.tabs.create({ url: blobUrl });
+      // Display results in the popup
+      displayResultsInPopup(aiResponse);
 
       showStatus(`✓ AI analysis complete for ${response.data.length} items!`, 'success');
 
@@ -323,11 +243,8 @@ async function scrapeCart() {
       console.error('Backend error:', backendError);
       showStatus(`Backend error: ${backendError.message}`, 'error');
       
-      // Fallback: show raw data if backend fails
-      const cartHTML = generateCartResultsHTML(response.data);
-      const blob = new Blob([cartHTML], { type: 'text/html' });
-      const blobUrl = URL.createObjectURL(blob);
-      await chrome.tabs.create({ url: blobUrl });
+      // Fallback: show error message in results
+      displayResultsInPopup(`Error: ${backendError.message}\n\nPlease make sure the backend server is running on http://localhost:4000`);
     }
 
   } catch (error) {
@@ -339,5 +256,8 @@ async function scrapeCart() {
 }
 
 // Add click event listeners
-scrapeBtn.addEventListener('click', scrapeReviews);
 cartBtn.addEventListener('click', scrapeCart);
+
+// Close results button
+const closeResultsBtn = document.getElementById('closeResultsBtn');
+closeResultsBtn.addEventListener('click', hideResultsSection);

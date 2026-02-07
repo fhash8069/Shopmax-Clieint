@@ -205,6 +205,84 @@
     .action-buttons button:hover {
       background: #fa8900;
     }
+
+    /* Status message */
+    #status {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      text-align: center;
+      display: none;
+    }
+
+    #status.info {
+      display: block;
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+
+    #status.error {
+      display: block;
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    #status.success {
+      display: block;
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    /* Results section */
+    #resultsSection {
+      margin-top: 20px;
+      border-top: 2px solid #4CAF50;
+      padding-top: 15px;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .results-header h3 {
+      margin: 0;
+      color: #4CAF50;
+      font-size: 16px;
+    }
+
+    #closeResultsBtn {
+      background: #c62828;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    #closeResultsBtn:hover {
+      background: #b71c1c;
+    }
+
+    .ai-response-box {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-left: 4px solid #4CAF50;
+      padding: 15px;
+      border-radius: 4px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #333;
+    }
   </style>
 </head>
 <body>
@@ -226,6 +304,20 @@
     <!-- Bottom buttons -->
     <div class="action-buttons">
       <button id="cartBtn">CartMaxx!</button>
+    </div>
+
+    <!-- Status message -->
+    <div id="status"></div>
+
+    <!-- Cart Analysis Results Section (hidden by default) -->
+    <div id="resultsSection" style="display: none;">
+      <div class="results-header">
+        <h3>Cart Analysis Results</h3>
+        <button id="closeResultsBtn">✕ Close</button>
+      </div>
+      <div id="aiResponseContent" class="ai-response-box">
+        <!-- AI response will be inserted here -->
+      </div>
     </div>
   </div>
 
